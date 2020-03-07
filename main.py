@@ -76,6 +76,36 @@ def login():
 
     return render_template("login.jinja2")
 
+@app.route("/logout/")
+def logout():
+    if "username" not in session:
+        session["redirect_to"] = "all"
+        return redirect(url_for("login"))
+    
+    session.pop("username", None)
+    return redirect(url_for("all"))
+
+@app.route("/query/", methods=["GET", "POST"])
+def query():
+    if request.method == "POST":
+        name = request.form["name"]
+        try:
+            donor = Donor.select().where(Donor.name ==name).get()
+        except Donor.DoesNotExist:
+            msg = f"No such donor named: {name}"
+            return render_template("query.jinja2", error=msg)
+
+        donations = Donation.select().join(Donor).where(Donor.name == donor.name)
+        total = sum([donation.value for donation in donations])
+        return render_template("query.jinja2",
+                               donor=donor,
+                               donations=donations,
+                               total=total)
+    
+    return render_template("query.jinja2")
+
+        
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 6738))
     app.run(host='0.0.0.0', port=port)
