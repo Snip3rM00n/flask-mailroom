@@ -90,7 +90,7 @@ def query():
     if request.method == "POST":
         name = request.form["name"]
         try:
-            donor = Donor.select().where(Donor.name ==name).get()
+            donor = Donor.select().where(Donor.name == name).get()
         except Donor.DoesNotExist:
             msg = f"No such donor named: {name}"
             return render_template("query.jinja2", error=msg)
@@ -103,8 +103,6 @@ def query():
                                total=total)
     
     return render_template("query.jinja2")
-
-        
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 6738))
